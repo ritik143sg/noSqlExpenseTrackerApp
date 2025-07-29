@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>App</title>
+  </head>
+  <body
+    style="
+      background-color: #f3f3f3;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    "
+  >
+    <form
+      onsubmit="handleSubmit(event)"
+      style="
+        background-color: white;
+        padding: 50px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        width: 350px;
+        margin: auto;
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+      "
+    >
+      <h2 style="text-align: center; color: #333">Reset Password</h2>
+
+      <label
+        for="email"
+        style="display: block; margin-top: 15px; color: #9e2929"
+        >Email:</label
+      >
+      <input
+        type="email"
+        name="email"
+        id="email"
+        style="
+          width: 80%;
+          padding: 10px;
+          margin-top: 5px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          border-color: aqua;
+        "
+      />
+
+      <label
+        for="password"
+        style="display: block; margin-top: 15px; color: #9e2929"
+        >Password:</label
+      >
+      <input
+        type="password"
+        name="password"
+        id="password"
+        style="
+          width: 80%;
+          padding: 10px;
+          margin-top: 5px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          border-color: aqua;
+        "
+      />
+
+      <label
+        for="rePassword"
+        style="display: block; margin-top: 15px; color: #9e2929"
+        >Re-enter Password:</label
+      >
+      <input
+        type="password"
+        name="rePassword"
+        id="rePassword"
+        style="
+          width: 80%;
+          padding: 10px;
+          margin-top: 5px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          border-color: aqua;
+        "
+      />
+
+      <button
+        type="submit"
+        style="
+          width: 80%;
+          margin-top: 20px;
+          padding: 10px;
+          background-color: #007bff;
+          color: white;
+          border: none;
+          border-radius: 5px;
+          font-weight: bold;
+          cursor: pointer;
+        "
+      >
+        Reset Password
+      </button>
+    </form>
+  </body>
+
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    const handleSubmit = async (event) => {
+      event.preventDefault();
+
+      const localMail = JSON.parse(localStorage.getItem("userEmail"));
+
+      console.log(event);
+
+      const rePassword = event.target.rePassword.value;
+      const Password = event.target.password.value;
+
+      if (rePassword !== Password) {
+        alert("Password Miss Match");
+      } else {
+        const data = {
+          email: event.target.email.value,
+          password: event.target.password.value,
+        };
+        console.log(data);
+
+        if (data.email !== localMail) {
+          alert("It is not your Mail Please enter your own mail");
+        } else {
+          try {
+            const res = await axios.post(
+              `http://localhost:4000/user/changePassword`,
+              data
+            );
+
+            localStorage.removeItem("userEmail");
+
+            alert(res.data.msg);
+            window.location.href = "/login.html";
+          } catch (error) {
+            alert(error.response.data.msg);
+            window.location.href = "/login.html";
+            console.log(error);
+          }
+        }
+      }
+
+      event.target.email.value = "";
+      event.target.password.value = "";
+      event.target.rePassword.value = "";
+    };
+  </script>
+</html>
