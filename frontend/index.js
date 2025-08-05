@@ -1,3 +1,5 @@
+const result = document.getElementById("result");
+
 const handleSubmit = async (event) => {
   event.preventDefault();
   console.log(event);
@@ -14,11 +16,15 @@ const handleSubmit = async (event) => {
     console.log("User Post Request");
     const res = await axios.post("http://localhost:4000/user/signup/add", data);
     console.log(res);
-    alert(res.data.msg);
+    // alert(res.data.msg);
     console.log(res);
+    result.innerText = `${res.data.msg}`;
+    result.style.color = `green`;
     window.location.href = "./login.html";
   } catch (error) {
-    alert(error.response.data.msg);
+    // alert(error.response.data.msg);
+    result.innerText = `${error.response.data.msg}`;
+    result.style.color = `red`;
     console.log(error);
   }
   event.target.username.value = "";

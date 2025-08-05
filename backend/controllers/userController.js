@@ -58,21 +58,17 @@ const setPassword = async (req, res) => {
     const pass = await encryptPassword(data.password);
 
     const checkUser = await User.findOne({
-      where: {
-        email: data.email,
-      },
+      email: data.email,
     });
     if (!checkUser) {
       res.status(500).json({ msg: "User not Exist " });
     } else {
-      const user = await User.update(
+      const user = await User.updateOne(
         {
-          password: pass,
+          email: checkUser.email,
         },
         {
-          where: {
-            email: checkUser.email,
-          },
+          $set: { password: pass },
         }
       );
 

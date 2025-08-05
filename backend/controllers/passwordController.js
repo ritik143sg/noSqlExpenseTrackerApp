@@ -1,44 +1,44 @@
 const { v4: uuidv4 } = require("uuid");
 const path = require("path");
 
-const { User } = require("../models");
+require("../models");
 const SibApiV3Sdk = require("sib-api-v3-sdk");
 const ForgotPasswordRequest = require("../models/ForgotPasswordRequestsModel");
-const { where } = require("sequelize");
+const { networkInterfaces } = require("os");
+const User = require("../models/userModel");
 
-// Step 1: Configure Brevo API key
 const defaultClient = SibApiV3Sdk.ApiClient.instance;
 const apiKey = defaultClient.authentications["api-key"];
 apiKey.apiKey =
-  "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";
+  "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";
 
-// Step 2: Define controller function
 const getPassword = async (req, res) => {
   const user = req.body;
 
   try {
+    const newUser = await User.findOne({ email: user.email });
+
     const uid = uuidv4();
-    const reset = await ForgotPasswordRequest.create({
-      id: uid,
+    const reset = new ForgotPasswordRequest({
       isActive: true,
+      UserId: newUser._id,
     });
 
-    // Step 3: Instantiate the API
+    await reset.save();
+
     const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 
-    // Step 4: Set sender and receiver details
     const sender = {
-      email: "ritiksg143@gmail.com", // This must be a Brevo-verified sender
+      email: "ritiksg143@gmail.com",
       name: "TestApp",
     };
 
     const receivers = [
       {
-        email: user.email, // Receiver's email from request body
+        email: user.email,
       },
     ];
 
-    // Step 5: Send the transactional email
     const sendEmail = await apiInstance.sendTransacEmail({
       sender,
       to: receivers,
@@ -48,17 +48,15 @@ const getPassword = async (req, res) => {
       htmlContent: `
         <html>
           <body>
-            <h1>Hello, ${user.email},GET Ready,"http://localhost:4000/password/resetpassword/${uid}"</h1>
+            <h1>Hello, ${user.email},GET Ready,"http://localhost:4000/password/resetpassword/${reset._id}"</h1>
             <p>This is a test transactional email sent via the Brevo API.</p>
           </body>
         </html>
       `,
     });
 
-    // Step 6: Send success response
     res.status(200).json({ message: "Email sent successfully", sendEmail });
   } catch (error) {
-    // Handle API or logic errors
     console.error("Error while sending email:", error);
     res.status(500).json({ error: error.message });
   }
@@ -70,21 +68,21 @@ const setPassword = async (req, res) => {
   console.log(id);
 
   try {
-    const reset = await ForgotPasswordRequest.findByPk(id);
+    const reset = await ForgotPasswordRequest.findOne({ _id: id });
     console.log(reset);
 
     if (reset && reset.isActive == true) {
       res.sendFile(path.join(__dirname, "..", "public", "index.html"));
 
-      await ForgotPasswordRequest.update(
-        { isActive: false },
+      const pass = await ForgotPasswordRequest.updateOne(
         {
-          where: { id: id },
-        }
+          _id: id,
+        },
+        { $set: { isActive: false } }
       );
     }
   } catch (error) {
-    res.json({ error: error });
+    res.json({ error: error.message });
   }
 };
 

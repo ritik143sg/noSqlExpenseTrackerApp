@@ -105,11 +105,14 @@
       >
         Reset Password
       </button>
+      <p id="result"></p>
     </form>
   </body>
 
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script>
+    const result = document.getElementById("result");
+
     const handleSubmit = async (event) => {
       event.preventDefault();
 
@@ -121,7 +124,9 @@
       const Password = event.target.password.value;
 
       if (rePassword !== Password) {
-        alert("Password Miss Match");
+        //alert("Password Miss Match");
+        result.innerText = `Password Miss Match`;
+        result.style.color = `red`;
       } else {
         const data = {
           email: event.target.email.value,
@@ -130,7 +135,9 @@
         console.log(data);
 
         if (data.email !== localMail) {
-          alert("It is not your Mail Please enter your own mail");
+          //  alert("It is not your Mail Please enter your own mail");
+          result.innerText = `It is not your Mail Please enter your own mail`;
+          result.style.color = `red`;
         } else {
           try {
             const res = await axios.post(
@@ -140,10 +147,12 @@
 
             localStorage.removeItem("userEmail");
 
-            alert(res.data.msg);
+            result.innerText = `${res.data.msg}`;
+            result.style.color = `green`;
             window.location.href = "/login.html";
           } catch (error) {
-            alert(error.response.data.msg);
+            result.innerText = `${error.response.data.msg}`;
+            result.style.color = `red`;
             window.location.href = "/login.html";
             console.log(error);
           }

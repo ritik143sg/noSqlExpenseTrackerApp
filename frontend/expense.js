@@ -1,3 +1,4 @@
+const result = document.getElementById("result");
 const body = document.querySelector("body");
 const pageButton = document.getElementById("newPageButton");
 const token = JSON.parse(localStorage.getItem("token"));
@@ -380,7 +381,9 @@ const getPremiumButton = (premiumButton) => {
   premium.innerText = "You are a Premium User";
   premium.id = "Premium";
   premium.addEventListener("click", () => {
-    alert("Already A Premium User");
+    // alert("Already A Premium User");
+    result.innerText = "Already A Premium User";
+    result.style.color = "red";
   });
   form.appendChild(premium);
 };
